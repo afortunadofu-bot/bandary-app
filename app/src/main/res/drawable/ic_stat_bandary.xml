@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 通知列小圖示。系統會把非透明的部分整片塗成白色，所以這裡只能是剪影：
+     以前用的是 ic_launcher_foreground / ic_launcher（有滿版底色），在狀態列上是一塊白方塊。
+     24 視埠、內容填滿，狀態列縮到 24dp 時才看得出是「行事曆＋音波」。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M5.36,4.74 H18.64 A3.74,3.74 0 0 1 22.38,8.47 V19.26 A3.74,3.74 0 0 1 18.64,23 H5.36 A3.74,3.74 0 0 1 1.62,19.26 V8.47 A3.74,3.74 0 0 1 5.36,4.74 Z M5.36,6.4 H18.64 A2.08,2.08 0 0 1 20.72,8.47 V19.26 A2.08,2.08 0 0 1 18.64,21.34 H5.36 A2.08,2.08 0 0 1 3.28,19.26 V8.47 A2.08,2.08 0 0 1 5.36,6.4 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M3.28,8.47 A2.08,2.08 0 0 1 5.36,6.4 H18.64 A2.08,2.08 0 0 1 20.72,8.47 V10.13 H3.28 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6.4,1 H6.4 A1.04,1.04 0 0 1 7.43,2.04 V5.36 A1.04,1.04 0 0 1 6.4,6.4 H6.4 A1.04,1.04 0 0 1 5.36,5.36 V2.04 A1.04,1.04 0 0 1 6.4,1 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17.6,1 H17.6 A1.04,1.04 0 0 1 18.64,2.04 V5.36 A1.04,1.04 0 0 1 17.6,6.4 H17.6 A1.04,1.04 0 0 1 16.57,5.36 V2.04 A1.04,1.04 0 0 1 17.6,1 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M5.57,15.53 H5.57 A0.91,0.91 0 0 1 6.48,16.44 V18.77 A0.91,0.91 0 0 1 5.57,19.68 H5.57 A0.91,0.91 0 0 1 4.65,18.77 V16.44 A0.91,0.91 0 0 1 5.57,15.53 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M8.89,13.45 H8.89 A0.91,0.91 0 0 1 9.8,14.37 V18.77 A0.91,0.91 0 0 1 8.89,19.68 H8.89 A0.91,0.91 0 0 1 7.97,18.77 V14.37 A0.91,0.91 0 0 1 8.89,13.45 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12.21,11.79 H12.21 A0.91,0.91 0 0 1 13.12,12.71 V18.77 A0.91,0.91 0 0 1 12.21,19.68 H12.21 A0.91,0.91 0 0 1 11.29,18.77 V12.71 A0.91,0.91 0 0 1 12.21,11.79 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15.53,13.45 H15.53 A0.91,0.91 0 0 1 16.44,14.37 V18.77 A0.91,0.91 0 0 1 15.53,19.68 H15.53 A0.91,0.91 0 0 1 14.62,18.77 V14.37 A0.91,0.91 0 0 1 15.53,13.45 Z" />
+
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M18.85,15.53 H18.85 A0.91,0.91 0 0 1 19.76,16.44 V18.77 A0.91,0.91 0 0 1 18.85,19.68 H18.85 A0.91,0.91 0 0 1 17.94,18.77 V16.44 A0.91,0.91 0 0 1 18.85,15.53 Z" />
+
+</vector>

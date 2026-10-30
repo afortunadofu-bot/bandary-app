@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 曆與聲圖示的底色。用極淺的漸層（非純色）增加一點質感，
+     上緣偏亮、下緣偏深，肉眼幾乎看不出漸層但比死板的單色扎實。
+     顏色是馬卡龍鼠尾草綠色階，基準色 #6B9080。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:type="linear"
+        android:angle="90"
+        android:startColor="#739888"
+        android:endColor="#65897A" />
+</shape>

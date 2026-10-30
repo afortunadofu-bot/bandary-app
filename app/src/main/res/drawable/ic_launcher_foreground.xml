@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 「曆與聲」造型——行事曆外框＋音波柱，取代原本的字母 B。
+     內容刻意內縮在 adaptive icon 的安全範圍內（108 視埠、內容集中在中央
+     約 66dp 直徑的圓內），避免被各家 launcher 的遮罩形狀切到。
+     音波柱用跟背景圖層相同的橄欖綠色（而非真的鏤空），確保跟
+     ic_launcher_background 疊起來時無縫，不依賴圖層穿透。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 卡片主體 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,32 H70 A9,9 0 0 1 79,41 V67 A9,9 0 0 1 70,76 H38 A9,9 0 0 1 29,67 V41 A9,9 0 0 1 38,32 Z" />
+
+    <!-- 頂部色帶（月份標籤區） -->
+    <path
+        android:fillColor="#A8CCBC"
+        android:pathData="M29,41 A9,9 0 0 1 38,32 H70 A9,9 0 0 1 79,41 V45 H29 V41 Z" />
+
+    <!-- 掛環 ×2 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M40.5,23 H40.5 A2.5,2.5 0 0 1 43,25.5 V33.5 A2.5,2.5 0 0 1 40.5,36 H40.5 A2.5,2.5 0 0 1 38,33.5 V25.5 A2.5,2.5 0 0 1 40.5,23 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M67.5,23 H67.5 A2.5,2.5 0 0 1 70,25.5 V33.5 A2.5,2.5 0 0 1 67.5,36 H67.5 A2.5,2.5 0 0 1 65,33.5 V25.5 A2.5,2.5 0 0 1 67.5,23 Z" />
+
+    <!-- 音波柱 ×5（矮高高高矮，跟底色同色，視覺上像鏤空） -->
+    <path
+        android:fillColor="#6B9080"
+        android:pathData="M35.5,60 H35.5 A2.5,2.5 0 0 1 38,62.5 V69.5 A2.5,2.5 0 0 1 35.5,72 H35.5 A2.5,2.5 0 0 1 33,69.5 V62.5 A2.5,2.5 0 0 1 35.5,60 Z" />
+    <path
+        android:fillColor="#6B9080"
+        android:pathData="M45,56 H45 A2.5,2.5 0 0 1 47.5,58.5 V69.5 A2.5,2.5 0 0 1 45,72 H45 A2.5,2.5 0 0 1 42.5,69.5 V58.5 A2.5,2.5 0 0 1 45,56 Z" />
+    <path
+        android:fillColor="#6B9080"
+        android:pathData="M54.5,51 H54.5 A2.5,2.5 0 0 1 57,53.5 V69.5 A2.5,2.5 0 0 1 54.5,72 H54.5 A2.5,2.5 0 0 1 52,69.5 V53.5 A2.5,2.5 0 0 1 54.5,51 Z" />
+    <path
+        android:fillColor="#6B9080"
+        android:pathData="M64,56 H64 A2.5,2.5 0 0 1 66.5,58.5 V69.5 A2.5,2.5 0 0 1 64,72 H64 A2.5,2.5 0 0 1 61.5,69.5 V58.5 A2.5,2.5 0 0 1 64,56 Z" />
+    <path
+        android:fillColor="#6B9080"
+        android:pathData="M73.5,60 H73.5 A2.5,2.5 0 0 1 76,62.5 V69.5 A2.5,2.5 0 0 1 73.5,72 H73.5 A2.5,2.5 0 0 1 71,69.5 V62.5 A2.5,2.5 0 0 1 73.5,60 Z" />
+
+</vector>

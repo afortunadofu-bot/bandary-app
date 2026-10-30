@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- USB 測試版的 App 名稱，跟 Play 版並存時在桌面上分得出來。 -->
+<resources>
+    <string name="app_name">Bandary Debug</string>
+</resources>

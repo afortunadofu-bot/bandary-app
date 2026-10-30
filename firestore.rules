@@ -1,0 +1,476 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────
+// Bandary — 收緊版安全規則
+//
+// 這是版控中的規則單一真相來源，firebase.json 的 firestore.rules 指向它。
+// 部署：`firebase deploy --only firestore:rules`（不要再手動貼到 Console，會與這份漂移）。
+// 改動存取權限是對正式資料庫的變更，部署前請確認過內容。
+//
+// ⚠️ 第一位管理員的 bootstrap：在 Firebase Console → Firestore 手動建立
+//    admins/{你的 uid} 文件（內容隨意，例如 { note: "owner" }）。Console 寫入不受規則限制。
+//    isAdmin() 判斷的是這份文件存不存在，與 App 內用折扣碼開的管理員旗標是兩回事——
+//    App 內那個只是本機 DataStore 的開關，Firestore 看不到。
+//    之後其他人可用「邀請碼」自助成為管理員（見下方 admins / admin_codes 規則），
+//    但要先在 Console 建至少一組 admin_codes 文件。
+//    沒有任何管理員文件時，下列功能會全部被規則擋掉（症狀是「按了沒反應」或「讀取失敗」）：
+//      • 寫 / 刪雲端折扣碼（discount_codes）
+//      • 讀使用者回饋（feedback）
+//      • 審核台灣活動（free_events 的 update / delete）
+//      • 發布官方通知（announcements）、寫 config
+//    uid 可在 App 的「設定 → 管理者 → 雲端管理員 uid」看到並複製。
+//
+// 與舊版規則的差異，以及為什麼：
+//
+// (A) shared_calendars 從「登入者都可讀」收緊成「本人 + 好友」。
+//
+// (B) 修好三個「現行規則與 App 實際路徑不符」的問題（現行版直接部署會壞）：
+//     1. 好友請求實際路徑是 users/{uid}/friend_requests/{fromUid}（子集合），
+//        現行規則寫在「頂層 /friend_requests/{reqId}」——那條規則永遠不會被套用，
+//        真正生效的是 users/{uid}/{sub=**} 的 allow write: isOwner(uid)，
+//        於是「送出好友請求」（寫進對方收件匣）會被拒絕。
+//     2. 同理，接受好友請求要雙寫 users/{對方}/friends/{我}，也會被拒絕。
+//     3. 所以現行檔案一旦部署，加好友與接受好友都會失敗。
+//
+// (C) 跨使用者寫入採「最小開口」：只能把**自己**寫進別人的收件匣 / 好友清單，
+//     且加入好友清單必須有對方寄來的待處理請求存在，避免任何人自行塞進別人的
+//     好友清單來取得讀取權。
+//
+// ── 資料結構（App v1.9.1 已配合改好）────────────────────────
+// Firestore 規則的粒度是「整份文件」，**無法只擋文件裡的某幾個欄位**。
+// 但 shared_calendars/{uid} 這一份文件同時裝了兩種東西：
+//   • 搜尋用的公開名片：uid / handle / displayName / email / discoverableByEmail
+//     → 加好友時必須讓「還不是好友的人」讀得到（findByHandle、findSharedCalendarByEmail）
+//   • 私密內容：shows、interestedFreeEventIds、songProfile（年度歌單）
+//     → 只該給好友看
+// 只要兩者還在同一份文件，就只能二選一：全開（現況）或全關（加好友會壞）。
+// 因此要拆成兩份：
+//   shared_calendars/{uid}                  ← 只留公開名片欄位
+//   shared_calendars/{uid}/private/payload  ← shows / interestedFreeEventIds / songProfile
+// 對應要改 FirestoreService 的 publishMyCalendar / fetchSharedCalendar
+// （findByHandle、findSharedCalendarByEmail 讀名片那份，維持可搜尋）。
+// ─────────────────────────────────────────────────────────────
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    // 伺服器可驗證的管理員：在 admins/{uid} 建立文件即視為管理員。
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    // 我是不是 targetUid 的好友：好友關係存在 users/{targetUid}/friends/{我}。
+    // 接受請求時是 batch 雙寫，所以這個關係是對稱的。
+    function isFriendOf(targetUid) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(targetUid)/friends/$(request.auth.uid));
+    }
+
+    // ── 管理員名單 ───────────────────────────────────────────
+    // isAdmin() 靠 exists(admins/{uid})，但這個 collection 之前沒有任何規則，
+    // 會落到最後的「一律拒絕」——連本人都讀不到自己那份，App 無從得知自己算不算雲端管理員。
+    // 讀：只開「讀自己那一份」。
+    // 建立：允許「持有效邀請碼」的人把**自己**寫成管理員（App / 網頁的『輸入邀請碼』）。
+    //   把關全在這裡，不在前端：附上的 code 必須是 admin_codes 裡存在且 active 的文件，
+    //   否則拒絕。admin_codes 前端完全讀不到（見下），所以碼不會外洩、也無法暴力猜繞過。
+    // 更新 / 刪除：一律禁止（避免改 code 欄位或自行降權亂搞）；要撤銷管理員請在 Console 直接刪文件。
+    match /admins/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && exists(/databases/$(database)/documents/admin_codes/$(request.resource.data.code))
+        && get(/databases/$(database)/documents/admin_codes/$(request.resource.data.code)).data.active == true;
+      allow update, delete: if false;
+    }
+
+    // ── 管理員邀請碼 ─────────────────────────────────────────
+    // 只給上面 admins 規則的 exists()/get() 用（規則內的 get/exists 不受這裡的 read 限制）。
+    // 前端一律讀不到、也寫不進去：碼只能在 Firebase Console 手動建，文件 id ＝碼本身，
+    // 欄位 active(boolean)。要停用就把 active 改 false 或刪掉（已是管理員者不受影響）。
+    match /admin_codes/{code} {
+      allow read, write: if false;
+    }
+
+    // ── 使用者私有資料 ────────────────────────────────────────
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+
+      // 好友請求收件匣：文件 id ＝ 寄件者 uid。
+      // 別人要能「寄」進來，但只能寄出以自己為名的請求，且不能覆寫既有的。
+      match /friend_requests/{fromUid} {
+        allow read: if isOwner(uid) || isOwner(fromUid);
+        allow create: if isOwner(fromUid) && request.resource.data.fromUid == request.auth.uid;
+        allow delete: if isOwner(uid) || isOwner(fromUid);
+        allow update: if false;
+      }
+
+      // 好友清單：只有本人讀。
+      // 寫入除了本人，還要允許「對方接受我的請求時，把自己寫進我的清單」——
+      // 但必須真的有我寄給對方的待處理請求存在，否則任何人都能自行成為你的好友。
+      match /friends/{friendUid} {
+        allow read: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          || (isOwner(friendUid) &&
+              exists(/databases/$(database)/documents/users/$(friendUid)/friend_requests/$(uid)));
+        allow delete: if isOwner(uid) || isOwner(friendUid);
+      }
+
+      // 其餘子集合（concerts / daily_songs / images 等）：只有本人；管理員唯讀做統計。
+      match /{sub=**} {
+        allow read: if isOwner(uid) || isAdmin();
+        allow write: if isOwner(uid);
+      }
+    }
+
+    // 代號：任何登入者可查（加好友用）；只能寫入指向自己 uid 的文件。
+    // 這裡的 resource == null 檢查是關鍵：沒有它，只驗證「新資料的 uid 是自己」，
+    // 完全沒檢查「這個代號原本是不是別人的」，等於任何人都能直接覆寫別人已佔用的代號
+    // （App 端 claimHandle() 的搶號檢查只在用戶端跑，繞過 App 直接呼叫 SDK 就沒用）。
+    match /handles/{handle} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && (resource == null || resource.data.uid == request.auth.uid);
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // ── 共享日曆：公開名片 vs 好友限定內容 ─────────────────────
+    // 名片：登入者可讀（加好友搜尋需要）。只該放 uid / handle / displayName /
+    // email / discoverableByEmail / updatedAt——不要再放 shows 或 songProfile。
+    match /shared_calendars/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid);
+
+      // 私密內容：本人與好友才讀得到（演出清單、想去的活動、年度歌單）。
+      match /private/{doc} {
+        allow read: if isOwner(uid) || isFriendOf(uid);
+        allow write: if isOwner(uid);
+      }
+    }
+
+    // 折扣碼：登入者可讀（兌換時需查詢並遞增 redemptions）；只有管理員可新增 / 編輯 / 刪除。
+    // update 鎖死成「只能把 redemptions 恰好 +1」：舊版寫 if isSignedIn() 完全沒限欄位，
+    // 任何登入者都能直接把別人的碼改成 effect="admin"、expiresAt=null、maxRedemptions=null，
+    // 或把已用完的 redemptions 洗回 0 無限兌換——這裡才是真正擋住的地方，App 的兌換
+    // transaction 只是順著這條規則走，不是安全邊界本身。
+    match /discount_codes/{code} {
+      allow read: if isSignedIn();
+      allow update: if isSignedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['redemptions'])
+        && request.resource.data.redemptions == resource.data.redemptions + 1;
+      allow create, delete: if isAdmin();
+    }
+
+    // 免費 / 台灣活動：所有人可讀；登入者可投稿（建立）；管理員可審核 / 修改 / 刪除。
+    //
+    // 「改別人已核准的活動要經過審核」的做法：一般使用者不能改既有的**已核准**文件，
+    // 而是新增一份 status=pending、editOfId 指向原活動的修改提案；管理員核准時才由管理員
+    // 身分把內容寫回原文件並刪掉提案。
+    //
+    // 但「改自己還在審核中的投稿」應該可以直接改（不然打錯字只能撤回重投）：
+    // 投稿者可 update / delete **自己的、且尚未核准的**那一份，且：
+    //   • update 後 status 仍須是 pending（不能自我核准繞過審核）
+    //   • 不能竄改 createdBy（不能把別人的投稿變成自己的、或反之）
+    //
+    // create 的 status 檢查：擋掉登入者直接寫 status="approved" 自我核准。非管理員只能建 pending。
+    function ownsFreeEvent() {
+      return isSignedIn() && resource.data.createdBy == request.auth.token.email;
+    }
+    match /free_events/{eventId} {
+      // 已核准的活動所有人可讀（含未登入）；還在審核中／被駁回的只有投稿者本人與
+      // 管理員看得到——舊版 if true 對所有 status 一律公開，等於任何人（含未登入）
+      // 都能看到別人投稿的內容與管理員的駁回理由，在核准前就外流。
+      // 已核准的活動所有人可讀；待審核的「修改提案」也公開——提案改的是本來就已經
+      // 公開的活動內容，藏起來只會讓同一筆錯誤被不同人重複提案。
+      // 注意只開 pending 的提案：被駁回（rejected）的不開，因為那時 reviewComment
+      // 裡有管理員的駁回理由，不該公開。新投稿（沒有 editOfId）也維持原本的限制。
+      allow read: if resource.data.status == "approved" || isAdmin() ||
+        (resource.data.isEditProposal == true && resource.data.status == "pending") ||
+        (isSignedIn() && resource.data.createdBy == request.auth.token.email);
+      // create 原本沒檢查 createdBy，任何登入者都能把 createdBy 填成別人的信箱，
+      // 冒名投稿；現在強制 createdBy 必須是自己的登入信箱（管理員直接新增活動不受此限）。
+      allow create: if isAdmin() ||
+        (isSignedIn()
+          && request.resource.data.status == "pending"
+          && request.resource.data.createdBy == request.auth.token.email);
+
+      // 修改紀錄：所有人可讀（公開活動改過什麼本來就該公開），只有管理員能寫。
+      // 一般使用者的修改走提案審核，紀錄是在核准當下由管理員身分寫的。
+      // 刻意不給任何人刪：修改紀錄能被刪掉就失去了「有跡可循」的意義。
+      match /revisions/{revId} {
+        allow read: if true;
+        allow create: if isAdmin();
+        allow update, delete: if false;
+      }
+      allow update: if isAdmin() ||
+        (ownsFreeEvent()
+          && resource.data.status == "pending"
+          && request.resource.data.status == "pending"
+          && request.resource.data.createdBy == resource.data.createdBy);
+      // 投稿者可撤回自己「還沒被核准」的投稿（pending 或 rejected）；已核准的是公開資料，只有管理員能刪。
+      allow delete: if isAdmin() ||
+        (ownsFreeEvent() && resource.data.status != "approved");
+    }
+
+    // 活動抓取來源：只有管理員能讀 / 增 / 改 / 刪（一般使用者用不到）。
+    // Cloud Function 用 Admin SDK 讀寫，不受這條限制。
+    match /crawl_sources/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // 官方通知。targetUids 空陣列＝全體；有值＝只有名單上的人讀得到。
+    //
+    // App 端刻意分兩段查（whereEqualTo targetUids==[] 與 arrayContains 我的 uid），
+    // 因為 Firestore 的 list 規則是看「查詢本身能不能證明合規」，
+    // 不是把全部抓下來再逐筆過濾——後者在這裡會整個被拒。
+    //
+    // 舊公告沒有 targetUids 欄位，兩段都查不到；後台開啟時會自動補上空陣列
+    // （見 backfillAnnouncementTargets）。
+    match /announcements/{id} {
+      allow read: if isAdmin()
+        || resource.data.targetUids.size() == 0
+        || (isSignedIn() && request.auth.uid in resource.data.targetUids);
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 設定（config/contact、config/version）：所有人可讀；只有管理員可寫。
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 意見回饋：登入者可送出；只有管理員可讀取 / 刪除。
+    match /feedback/{id} {
+      allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.token.email;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // 共用藝人資料庫：artists/{id}。任何登入者都能新增，
+    // 新增之後大家都搜得到。文件 id 是比對鍵的雜湊，所以重複新增只會覆寫同一筆。
+    //
+    // 改名與刪除限管理員：這是共用資料，一個人把「滅火器」改成別的名字，
+    // 所有人的追蹤與比對都跟著壞。使用者能做的只有「新增一個還沒有的名字」。
+    match /artists/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.verified == false
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 80
+        && request.resource.data.key is string
+        && request.resource.data.key.size() > 0;
+      allow update, delete: if isAdmin();
+    }
+
+    // 爬蟲來源「建議」：crawl_source_suggestions/{id}。
+    //
+    // 重點：這裡與 crawl_sources 是**兩個不同的集合**，排程只讀 crawl_sources。
+    // 使用者寫進來的只是建議，**不會被自動爬**；管理員審過之後才手動建到 crawl_sources。
+    // 直接讓任何人寫 crawl_sources 等於開放任意人指定伺服器去抓任何網址，絕對不行。
+    match /crawl_source_suggestions/{id} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+      allow create: if isSignedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.url is string
+        && request.resource.data.url.size() <= 500
+        && (request.resource.data.url.matches('https://.*') || request.resource.data.url.matches('http://.*'));
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+    }
+
+    // 功能許願區：feature_wishes/{id}。跟 feedback 不同，這裡是公開的——
+    // 每個登入者都讀得到、都能按讚，只有作者與管理員能刪。
+    //
+    // update 分成三種情形，不能給一個大開口：
+    //   (a) 任何登入者只能改 likeCount（按讚），且一次只能 ±1；
+    //   (b) 管理員只能改 status；
+    //   (c) 其餘一律拒絕（標題 / 內容 / 作者不得被別人改）。
+    // 我按過讚的清單存在 users/{uid}/private/wish_likes，已經落在現有的 users 規則裡，
+    // 這裡不用再开一組。
+    match /feature_wishes/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.likeCount == 0
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200;
+      allow update: if isSignedIn() && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount'])
+          && request.resource.data.likeCount >= 0
+          && (request.resource.data.likeCount - resource.data.likeCount) in [1, -1])
+        // 留言數：新增 / 刪除留言時一起 ±1。跟 likeCount 一樣只開這一個欄位、
+        // 一次只准動 1，不能讓人把別人的許願洗成任意數字。
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount'])
+          && request.resource.data.commentCount >= 0
+          && (request.resource.data.commentCount - resource.data.commentCount) in [1, -1])
+        || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']))
+        || (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pinned']))
+      );
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == request.auth.uid);
+
+      // 許願底下的留言。公開可讀（登入後），只能以自己的身分留言，
+      // 內容一旦送出就不給改——可改的話討論串會被回頭竄改，按過的讚也失去意義。
+      // 別人只能動 likeCount，一次 ±1。刪除限作者與管理員。
+      match /comments/{cid} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.likeCount == 0
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000;
+        allow update: if isSignedIn()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount'])
+          && request.resource.data.likeCount >= 0
+          && (request.resource.data.likeCount - resource.data.likeCount) in [1, -1];
+        allow delete: if isAdmin() || (isSignedIn() && resource.data.authorUid == request.auth.uid);
+      }
+    }
+
+    // 推廣任務：使用者發文推薦 App，管理員審核通過後給試用期。
+    //
+    // 投稿與獎勵刻意分成兩個 collection，關鍵在 promo_rewards 的寫入權限：
+    // 試用期如果跟其他權限一樣放在 users/{uid}（本人可寫），使用者就能自己
+    // 把試用期加到十年後。獎勵一定要放在本人寫不到的地方。
+    match /promo_submissions/{subId} {
+      // 只看得到自己的；管理員看得到全部（審核需要）。
+      allow read: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      // 只能以自己的身分建立、只能是待審狀態，不能自己填成已通過。
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending"
+        && request.resource.data.postUrl is string
+        && request.resource.data.postUrl.size() > 0
+        && request.resource.data.postUrl.size() <= 500;
+      // 審核只有管理員能做。使用者不能改自己送出的內容——
+      // 不然可以先送一篇合格的、過了再把連結換掉。
+      allow update: if isAdmin();
+      // 還在審核中可以自己撤回；審完就不給刪，留著當紀錄。
+      allow delete: if isAdmin() ||
+        (isSignedIn() && resource.data.uid == request.auth.uid && resource.data.status == "pending");
+    }
+
+    match /promo_rewards/{uid} {
+      allow read: if isAdmin() || isOwner(uid);
+      // 只有管理員寫得進去。這一條就是整個機制的安全性所在，不要放寬。
+      allow write: if isAdmin();
+    }
+
+    // 藝人粉絲排行榜：artist_fans/{藝人key}/fans/{uid}（見 FirestoreService.publishArtistCount）。
+    // 現行 firestore.rules 完全沒有這一段 → 會落到最後的「一律拒絕」，排行榜功能會壞。
+    // 文件 id 就是 uid，所以只要求「只能寫自己那一份」。
+    match /artist_fans/{artistKey}/fans/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid);
+    }
+
+    // 年度排行榜：yearly_leaderboard/{年份}/entries/{uid}（見 FirestoreService.publishYearlyCount）。
+    // 跟 artist_fans 同一套規則：文件 id 就是 uid，只能寫自己那一份；預設公開可退出的邏輯
+    // 在 App 端決定要不要寫這份文件（退出就整筆刪掉），規則本身不需要知道退出狀態。
+    match /yearly_leaderboard/{year}/entries/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid);
+
+      // 重疊比對用的雜湊清單。任何登入者可讀，但讀到的是不可逆推的雜湊——
+      // 沒辦法從中列舉對方看過哪些場次，只能拿自己的雜湊去比對交集。
+      // 使用者關閉「允許比對重疊」時，App 會把這份文件整個刪掉。
+      match /detail/{doc} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(uid);
+      }
+    }
+
+    // 場館座位視野圖：使用者自己在座位上拍的照片，標上場館與區域分享給別人。
+    // 與活動投稿同一套規矩——寫進來一律 pending，管理員審過才公開。
+    //
+    // 為什麼不用現成的官方座位圖：那是別人的作品，抓進 App 再散給所有人是重製散布。
+    // 使用者自己拍的沒有這個問題，而且更有用（看得到柱子擋不擋得到）。
+    match /venue_views/{id} {
+      // 已核准的公開；待審／被退的只有作者與管理員看得到。
+      allow read: if isAdmin()
+        || resource.data.status == 'approved'
+        || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+      allow create: if isSignedIn()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.venue is string
+        && request.resource.data.venue.size() <= 100
+        && request.resource.data.venueKey is string
+        && request.resource.data.section.size() <= 60
+        && request.resource.data.note.size() <= 200
+        && request.resource.data.image is string;
+      // 審核只有管理員能做——作者自己把 status 改成 approved 就繞過審核了。
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+        || (isSignedIn() && resource.data.createdBy == request.auth.uid);
+    }
+
+    // 訪客安裝紀錄：讓後台算得出「裝了但還沒登入」有多少人。
+    // 沒有這個數字，漏斗最上層就只有登入者，註冊轉換率永遠是 100%。
+    //
+    // 這是全專案**唯一**允許未登入寫入的集合，所以限制下得很死：
+    //   - 文件 id 是 App 本機產生的隨機 UUID，格式不符一律擋掉
+    //   - 欄位白名單只有三個，而且型別都檢查；塞不進任何個人資料
+    //   - 只能讀自己那一份（其實 App 根本不讀），列舉整個集合限管理員
+    //   - 不給 delete：讓人能刪別人的安裝紀錄沒有任何好處
+    //
+    // 最壞的情況是有人照格式灌假文件把數字灌水。那是統計失真，不是資料外洩，
+    // 而且後台的標籤已經寫明這是「安裝數」不是「人數」。
+    // 咖啡入口的點擊計數。與 guest_installs 同一套隱私立場：
+    // 只有本機隨機 id、次數、時間、版本，沒有 email / uid / 裝置識別碼。
+    //
+    // taps 用 FieldValue.increment(1) 寫入，所以規則這樣防亂改：
+    // 建立時必須正好是 1，更新時必須正好是「原值 + 1」——
+    // 任何人都寫得動自己那一筆（匿名使用者也要能贊助），但沒辦法把別人的數字
+    // 或自己的數字一次衝到幾千，也沒辦法把它改小。
+    // 外站連結的點擊計數（品牌頁的其他 App、贊助入口…）。
+    // 與 guest_installs 同一套隱私立場：只有本機隨機 id、連結代號、次數、時間、版本，
+    // 沒有 email / uid / 裝置識別碼。
+    //
+    // 文件 id 是 `{installId}_{linkId}`：一人一連結一筆。
+    // 這樣拆的原因是規則驗得動——taps 用 FieldValue.increment(1) 寫入，
+    // 建立時必須正好是 1、更新時必須正好是「原值 + 1」。
+    // 用一個巢狀 map 存所有連結的話，規則沒辦法逐個 key 驗增量，
+    // 任何人都能把數字一次灌到幾千。
+    match /outbound_clicks/{docId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if request.resource.data.keys().hasOnly(['link', 'firstAt', 'lastAt', 'appVersion', 'taps'])
+        && request.resource.data.taps == 1
+        && request.resource.data.link is string
+        && request.resource.data.link.size() <= 40
+        && request.resource.data.lastAt is int
+        && request.resource.data.firstAt is int;
+      allow update: if request.resource.data.keys().hasOnly(['link', 'firstAt', 'lastAt', 'appVersion', 'taps'])
+        && request.resource.data.taps == resource.data.taps + 1
+        && request.resource.data.link == resource.data.link
+        && request.resource.data.lastAt is int;
+      allow delete: if isAdmin();
+    }
+
+    match /guest_installs/{installId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, update: if installId.size() == 36
+        && request.resource.data.keys().hasOnly(['firstSeenAt', 'lastActiveAt', 'appVersion'])
+        && request.resource.data.lastActiveAt is int
+        && (!('firstSeenAt' in request.resource.data) || request.resource.data.firstSeenAt is int)
+        && (!('appVersion' in request.resource.data) || request.resource.data.appVersion.size() <= 20);
+      allow delete: if false;
+    }
+
+    // 其餘一律拒絕。
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

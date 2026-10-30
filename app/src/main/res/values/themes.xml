@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AppCompat 底（圖片裁切器 CropImageActivity 是 AppCompatActivity，需要 AppCompat 主題否則閃退）-->
+    <style name="Theme.Bandary" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- 冷啟動的品牌畫面。以前開 App 是一片空白直到 Compose 畫好第一幀；
+         現在先出品牌底色與標誌，載完自動換成 Theme.Bandary（postSplashScreenTheme）。 -->
+    <style name="Theme.Bandary.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_surface</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="postSplashScreenTheme">@style/Theme.Bandary</item>
+    </style>
+</resources>

@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>使用說明 — Bandary 聽團曆</title>
+<meta name="description" content="Bandary 聽團曆完整使用說明：怎麼記錄演唱會、看統計、投稿免費活動、加好友、Pro 方案差異，以及照片怎麼存、刪了會不會不見等常見問題。">
+<meta name="theme-color" content="#F4F7F6">
+<meta name="color-scheme" content="light">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="canonical" href="https://bandary.web.app/help">
+<meta property="og:title" content="使用說明 — Bandary 聽團曆">
+<meta property="og:description" content="完整功能說明與常見問題：記錄、統計、免費活動、Pro 方案、照片與資料安全。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bandary.web.app/help">
+<meta property="og:image" content="https://bandary.web.app/icon-512.png">
+<meta name="twitter:card" content="summary">
+<style>
+  :root{
+    color-scheme:light;
+    --primary:#6B9080; --on-primary:#FFFFFF;
+    --primary-container:#CCE3DE; --on-primary-container:#223A31;
+    --background:#F4F7F6; --on-background:#040706;
+    --surface:#FAFBFA; --on-surface:#040706;
+    --surface-variant:#E8EEEB; --on-surface-variant:#22312B;
+    --outline-variant:#D1DDD7;
+    --c1:#6B9080; --c2:#6F9BC4; --c3:#CE8BA6; --c4:#B08968; --c5:#8C8BB0; --c6:#5E8C84;
+    --serif:"Noto Serif TC",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",Roboto,sans-serif;
+    --ls:1.4px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--background);color:var(--on-background);
+    font-family:var(--sans);font-size:17px;line-height:28px;
+    -webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} }
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  section{padding:56px 0;border-top:1px solid var(--outline-variant)}
+  section:first-of-type{border-top:none}
+
+  h1,h2,h3{font-family:var(--serif);font-weight:700;letter-spacing:-.5px;margin:0}
+  h1{font-size:clamp(34px,7vw,52px);line-height:1.15}
+  h2{font-size:clamp(24px,4.5vw,30px);line-height:1.3;margin-bottom:8px}
+  h3{font-size:19px;line-height:28px;letter-spacing:-.2px}
+  .kicker{font-size:12px;letter-spacing:var(--ls);text-transform:uppercase;
+    font-weight:700;color:var(--on-surface-variant);
+    padding-top:12px;border-top:2px solid var(--kicker-c,var(--on-surface));
+    display:inline-block;margin-bottom:20px}
+  .lede{font-size:19px;line-height:31px;color:var(--on-surface-variant)}
+  .muted{color:var(--on-surface-variant)}
+  .small{font-size:14px;line-height:22px}
+
+  header{padding:56px 0 8px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+  .brand img{width:40px;height:40px;border-radius:9px}
+  .brand b{font-family:var(--serif);font-size:20px;letter-spacing:-.2px}
+  .hero-sub{font-size:19px;line-height:30px;margin:16px 0 0;color:var(--on-surface-variant);max-width:44ch}
+
+  .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .btn{display:inline-flex;align-items:center;gap:10px;
+    padding:14px 24px;border-radius:0;border:1px solid var(--on-surface);
+    font-size:13px;letter-spacing:var(--ls);text-transform:uppercase;font-weight:700;
+    text-decoration:none;cursor:pointer;transition:opacity .15s;background:none}
+  .btn:hover{opacity:.75}
+  .btn-fill{background:var(--on-surface);color:var(--background)}
+  .btn-ghost{background:transparent;color:var(--on-surface)}
+
+  /* 章節分頁 */
+  .tabs{display:flex;gap:0;margin-top:8px;border-bottom:1px solid var(--outline-variant);
+    overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tab{flex:0 0 auto;background:none;border:none;cursor:pointer;font-family:var(--sans);
+    font-size:13px;letter-spacing:.6px;font-weight:700;white-space:nowrap;
+    color:var(--on-surface-variant);padding:12px 18px 14px;border-bottom:2px solid transparent;
+    margin-bottom:-1px;transition:color .15s,border-color .15s}
+  .tab[aria-selected="true"]{color:var(--on-surface);border-bottom-color:var(--on-surface)}
+  .tabpanel[hidden]{display:none}
+
+  /* 條列說明 */
+  .feat{list-style:none;padding:0;margin:26px 0 0}
+  .feat li{display:flex;gap:16px;padding:18px 0;border-bottom:1px solid var(--outline-variant)}
+  .feat li:last-child{border-bottom:none}
+  .feat .fk{flex:none;width:26px;font-family:var(--serif);font-weight:700;font-size:14px;
+    letter-spacing:1px;color:var(--fc,var(--c1));padding-top:2px}
+  .feat b{display:block;font-size:16px;line-height:24px;font-weight:700}
+  .feat p{margin:4px 0 0;font-size:14.5px;line-height:23px;color:var(--on-surface-variant)}
+
+  /* 方案比較表 */
+  .cmp{width:100%;border-collapse:collapse;margin-top:28px;font-size:14.5px}
+  .cmp th,.cmp td{padding:12px 8px;border-bottom:1px solid var(--outline-variant);text-align:left}
+  .cmp thead th{font-size:11.5px;letter-spacing:var(--ls);text-transform:uppercase;
+    color:var(--on-surface-variant);font-weight:700;border-bottom:2px solid var(--on-surface)}
+  .cmp td:nth-child(2),.cmp td:nth-child(3),.cmp td:nth-child(4),
+  .cmp th:nth-child(2),.cmp th:nth-child(3),.cmp th:nth-child(4){text-align:center;width:19%}
+  .cmp tbody th{font-weight:600}
+
+  .note{margin-top:20px;padding:16px 18px;background:var(--surface-variant);font-size:14.5px;
+    line-height:23px;color:var(--on-surface-variant);border-left:3px solid var(--c1)}
+
+  /* FAQ */
+  details{border-bottom:1px solid var(--outline-variant);padding:18px 0}
+  summary{cursor:pointer;font-family:var(--serif);font-size:17px;font-weight:700;
+    list-style:none;display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'+';font-family:var(--sans);font-weight:400;font-size:20px;color:var(--on-surface-variant)}
+  details[open] summary::after{content:'–'}
+  details p{margin:12px 0 0;font-size:15px;line-height:25px;color:var(--on-surface-variant)}
+  details p + p{margin-top:10px}
+
+  footer{padding:48px 0 96px;border-top:1px solid var(--outline-variant)}
+  footer a{color:inherit}
+
+  /* 小數據所頁尾：與壽星日、RelateStats 共用的工作室區塊，色票刻意獨立於 Bandary 主題 */
+  .studio{background:#F5F3EF;border-top:1px solid #E6E2DA;padding:56px 0 64px;color:#1A1A1A}
+  .studio-head{display:flex;align-items:center;gap:22px}
+  .studio .dots{display:grid;grid-template-columns:repeat(4,12px);gap:7px;flex:none}
+  .studio .dots i{width:12px;height:12px;border-radius:50%;background:#CFCCC6}
+  .studio .dots i.k{background:#1A1A1A}
+  .studio .dots i.g{background:#B07A2E}
+  .studio-name{font-family:var(--serif);font-size:22px;line-height:30px;font-weight:700;letter-spacing:4px}
+  .studio-sub{font-size:15px;line-height:22px;letter-spacing:6px;color:#B07A2E;margin-top:4px}
+  .studio-tag{margin:28px 0 0;font-size:16px;line-height:26px}
+  .studio-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;
+    margin-top:28px;padding-top:24px;border-top:1px solid #DDD8CF;font-size:16px}
+  .studio-links a{color:#55524D;text-decoration:none}
+  .studio-links a[aria-current]{color:#B07A2E}
+  .studio-links .sep{color:#C9C4BA}
+  .studio-copy{margin-top:28px;font-size:14px;color:#6B6862}
+
+  .dock{position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:var(--background);border-top:1px solid var(--outline-variant);
+    padding:12px 24px calc(12px + env(safe-area-inset-bottom));display:none}
+  .dock .btn{width:100%;justify-content:center;padding:15px 20px}
+  @media (max-width:640px){
+    .dock{display:block}
+    body{padding-bottom:84px}
+    section{padding:40px 0}
+    .cta .btn{width:100%;justify-content:center}
+    .tab{padding:11px 14px 13px}
+  }
+</style>
+<!-- 網站分析（GA4）。編號只寫在 analytics.js 裡，換帳號改一個地方就好。 -->
+<script src="analytics.js"></script>
+<!-- Buy Me a Coffee 浮動小工具。
+     **必須是 inline 的 script 標籤**：這支 widget 是在 DOMContentLoaded 時才渲染的，
+     用 JS 動態塞進 head 的話，載入完成時那個事件早就過了，按鈕永遠不會出現
+     （而且不會有任何錯誤訊息，純粹就是沒反應）。所以這裡接受帳號代號重複三次。
+     同樣的標籤也在 about.html 與 help.html，要改記得三個一起改。
+     刻意不放 privacy.html 與 delete-account.html：使用者在看那兩頁的時候，
+     不是在「要不要支持作者」的心情裡。 -->
+<script data-name="BMC-Widget" data-cfasync="false"
+        src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+        data-id="celinefu" data-description="支持小數據所繼續做下去"
+        data-message="" data-color="#FF813F"
+        data-position="Right" data-x_margin="18" data-y_margin="18"></script>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <img src="icon-192.png" alt="">
+      <b>Bandary 聽團曆</b>
+    </div>
+    <h1>使用說明</h1>
+    <p class="hero-sub">
+      這裡整理了完整的功能說明與常見問題。想快速了解 Bandary 是什麼，
+      可以先看<a href="/about">介紹頁</a>；已經在用了，這頁可以查任何你不確定的細節。
+    </p>
+    <div class="cta">
+      <a class="btn btn-fill" href="/">回到網頁版</a>
+      <a class="btn btn-ghost" href="#faq">直接看常見問題</a>
+    </div>
+  </header>
+
+  <section>
+    <span class="kicker" style="--kicker-c:var(--c1)">功能說明</span>
+    <h2>Bandary 能做什麼</h2>
+    <p class="lede">依主題分頁，點下面切換。</p>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-start" aria-controls="panel-start" aria-selected="true">開始使用</button>
+      <button class="tab" role="tab" id="tab-record" aria-controls="panel-record" aria-selected="false">記錄演唱會</button>
+      <button class="tab" role="tab" id="tab-stats" aria-controls="panel-stats" aria-selected="false">統計與排行</button>
+      <button class="tab" role="tab" id="tab-events" aria-controls="panel-events" aria-selected="false">免費活動</button>
+      <button class="tab" role="tab" id="tab-friends" aria-controls="panel-friends" aria-selected="false">好友</button>
+      <button class="tab" role="tab" id="tab-pro" aria-controls="panel-pro" aria-selected="false">Pro 方案</button>
+      <button class="tab" role="tab" id="tab-photos" aria-controls="panel-photos" aria-selected="false">照片與資料</button>
+    </div>
+
+    <div class="tabpanel" id="panel-start" role="tabpanel" aria-labelledby="tab-start">
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c1)">01</span>
+          <div><b>兩個版本，同一份資料</b>
+          <p>Android App 到 Google Play 搜尋「Bandary 聽團曆」下載；網頁版免安裝，直接開 <a href="https://bandary.web.app">bandary.web.app</a>。用同一個 Google 帳號登入，兩邊看到的是同一份資料。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c1)">02</span>
+          <div><b>不用登入也能看免費活動</b>
+          <p>台灣的免費 / 售票活動清單任何人都能瀏覽，不用登入。要記錄自己看過的演出、投稿活動、加好友，才需要用 Google 帳號登入。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c1)">03</span>
+          <div><b>手機是功能最完整的版本</b>
+          <p>照片上傳、通知提醒、好友、Google 日曆同步、桌面小工具目前只有 Android App 支援；核心的記錄與統計功能兩邊都有。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c1)">04</span>
+          <div><b>加到手機主畫面</b>
+          <p>不想裝 App 也可以：iPhone 用 Safari 開網頁版 → 分享 → 加入主畫面；Android 用 Chrome 開網頁版 → 選單 → 安裝應用程式，之後就像一個獨立的 App 一樣使用。</p></div></li>
+      </ul>
+    </div>
+
+    <div class="tabpanel" id="panel-record" role="tabpanel" aria-labelledby="tab-record" hidden>
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c2)">01</span>
+          <div><b>新增一場演出</b>
+          <p>右下角「＋」。預設是快速模式，先填名稱、日期、場地、藝人就能存；需要票價、座位、取票序號、心得評分這些更多欄位時，切到「完整編輯」。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c2)">02</span>
+          <div><b>掃描海報自動填表</b>
+          <p>拍照或截圖活動海報，App 會用裝置端的文字辨識（不用連外部 API，也不會把圖傳到 Meta 之類的伺服器）猜出名稱、日期、時間、票價，直接填回表單，你再看一眼調整。IG／Threads 貼文截圖也適用——這兩個平台沒有公開資料可抓，只能靠這種「輔助填表」的方式。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c2)">03</span>
+          <div><b>音樂祭 / 拼盤演出</b>
+          <p>可以逐團記出場時間表；一場如果有多組藝人（雙主場、拼盤）也能分開記。客串 / 嘉賓可以標成 FEAT，算進「看過哪些藝人」但不佔現場時數。多日活動可以逐日記錄，不同天可以各自設封面。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c2)">04</span>
+          <div><b>開賣與演出提醒</b>
+          <p>填了開賣時間會提醒你別錯過搶票；演出當天也會提醒一次，附上場地與取票序號，出門前再看一眼就好。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c2)">05</span>
+          <div><b>照片、票根、節目表</b>
+          <p>一場可以放好幾張照片，並個別標成封面 / 場位圖 / 節目表；也能把票根做成圖片分享出去（App 限定）。免費張數視方案而定，見「Pro 方案」分頁。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c2)">06</span>
+          <div><b>每天記一首歌</b>
+          <p>今天在聽什麼，一句話就記下，累積成你的音樂日記，也能看連續紀錄了幾天。看完團可以直接從當天歌單裡挑幾首留著。</p></div></li>
+      </ul>
+    </div>
+
+    <div class="tabpanel" id="panel-stats" role="tabpanel" aria-labelledby="tab-stats" hidden>
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c3)">01</span>
+          <div><b>總覽數據</b>
+          <p>總場次、總花費、看過的藝人數、去過的場館與縣市、累積場次曲線、每年 / 每月分布、票價區間、星期幾最常看團——每張圖表都能點進去看是哪幾場組成的。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c3)">02</span>
+          <div><b>看最多次的藝人</b>
+          <p>依現場次數排名；同分怎麼決勝負：先比你花在這位藝人身上的總金額（花越多代表越死忠），還同分就比第一次看到他的日期（認識越久的排前面）。並列第一的話畫面上會直接列出所有並列的名字，不會硬要分出唯一第一名。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c3)">03</span>
+          <div><b>回訪率</b>
+          <p>看某一年（或某個區間）看過的藝人，有多少比例是之前就看過的「回頭客」；看全部時間則改成「看過 ≥2 次的藝人占比」。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c3)">04</span>
+          <div><b>花費相關</b>
+          <p>每位藝人花了多少錢（音樂祭票價會平均分給該場所有藝人，不會整張票都算給每一團）、每個售票平台的累積花費、每月花費曲線。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c3)">05</span>
+          <div><b>選歌品味</b>
+          <p>選過的歌與藝人統計、最愛藝人 TOP、每首歌被記錄的次數，看得出你這陣子在循環什麼。</p></div></li>
+      </ul>
+    </div>
+
+    <div class="tabpanel" id="panel-events" role="tabpanel" aria-labelledby="tab-events" hidden>
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c4)">01</span>
+          <div><b>瀏覽</b>
+          <p>「活動」分頁列出台灣的免費 / 售票活動，任何人都能看，不用登入。有興趣的話一鍵就能把它複製成自己的一筆演唱會記錄。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c4)">02</span>
+          <div><b>投稿</b>
+          <p>登入後可以自己新增活動，或用「掃描海報」自動辨識填表（同記錄演唱會那套 OCR）。投稿的活動會先進「待審核」，由管理員看過確認資訊正確後才會公開給所有人看到，不會你一投稿別人馬上就看得到。</p>
+          <p>登入後新增一場還沒發生的演出，也會自動把這場的公開活動資訊（名稱、藝人、場地、時間、票價、連結）送審，讓活動頁同時收到免費與售票的場次；照片、座位、取票資訊與心得不會送出。同一天已經有名稱相似的活動就不會重複送，送出的內容在「我的投稿」看得到、審核前可以撤回。不想分享的話，到「我的」關掉「新增演出時分享到活動頁」。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c4)">03</span>
+          <div><b>資料哪裡來</b>
+          <p>除了使用者投稿，系統每天也會自動從管理員指定的活動來源抓取新活動——只抓 iCal、網頁內嵌的結構化資料（schema.org/Event）這類本來就設計給機器讀的格式，不做「硬爬版面」那種網站一改版就壞的事。抓到的一樣進待審核，不會自動公開。</p></div></li>
+      </ul>
+    </div>
+
+    <div class="tabpanel" id="panel-friends" role="tabpanel" aria-labelledby="tab-friends" hidden>
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c5)">01</span>
+          <div><b>目前是 App 限定功能</b>
+          <p>加好友、看好友的演出行事曆目前只在 Android App 上；網頁版還沒有這個分頁。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c5)">02</span>
+          <div><b>用好友代碼加好友</b>
+          <p>每個帳號登入後會自動配一組好友代碼（也可以自己改成好記的）。把代碼給對方，或搜尋對方的代碼送出邀請，互相答應後就能加成好友。代碼不是你的名字——別人看到的名字是暱稱。</p></div></li>
+      </ul>
+      <p class="small muted" style="margin-top:8px">好友相關功能持續在補完，這裡的說明會隨功能更新。</p>
+    </div>
+
+    <div class="tabpanel" id="panel-pro" role="tabpanel" aria-labelledby="tab-pro" hidden>
+      <p class="lede" style="font-size:16px;line-height:25px">
+        核心的記錄、統計、免費活動功能全部永遠免費。Pro 只解鎖進階功能，
+        Pro 與 Pro+ 兩層唯一的差別是「每場能放幾張照片」，其餘進階功能完全一樣。
+      </p>
+      <table class="cmp">
+        <thead><tr><th>項目</th><th>免費</th><th>Pro</th><th>Pro+</th></tr></thead>
+        <tbody>
+          <tr><th>核心記錄與統計</th><td>✓</td><td>✓</td><td>✓</td></tr>
+          <tr><th>每場照片張數</th><td>3 張</td><td>5 張</td><td>10 張</td></tr>
+          <tr><th>去除廣告</th><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><th>深色模式</th><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><th>自訂調色盤</th><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><th>新增歌單</th><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><th>下載分享圖</th><td>—</td><td>✓</td><td>✓</td></tr>
+          <tr><th>匯出資料</th><td>—</td><td>✓</td><td>✓</td></tr>
+        </tbody>
+      </table>
+      <div class="note">
+        兩層都可以選「一次買斷」或「年訂閱」。買斷是永久解鎖；訂閱到期或取消後，
+        已經上傳的照片<b>不會被刪除</b>，只是在超過新方案的張數上限前不能再新增。
+        訂閱可以隨時在 Google Play 的「訂閱項目」取消，App 內的方案頁也有捷徑可以直接開到那裡。
+        如果有管理員給的折扣碼，也可以在「我的」→「兌換折扣碼」輸入解鎖。
+      </div>
+    </div>
+
+    <div class="tabpanel" id="panel-photos" role="tabpanel" aria-labelledby="tab-photos" hidden>
+      <ul class="feat">
+        <li><span class="fk" style="--fc:var(--c6)">01</span>
+          <div><b>照片存在哪裡</b>
+          <p>從相簿選圖的當下，App 會複製一份到自己的私有空間，不是直接記住相簿裡那張圖的位置。所以之後你在手機相簿把原圖刪掉、搬到別的資料夾，都不會影響 App 裡看到的照片——兩者從選圖那一刻起就是各自獨立的檔案。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c6)">02</span>
+          <div><b>在 App 裡移除照片</b>
+          <p>在照片的設定裡按「移除照片」，這場記錄就不會再顯示它；真正在裝置上刪除這份私有複製檔，是在你之後按下「儲存」或「暫存」確認整筆修改時才會發生。也就是說，移除完照片、按儲存之前如果直接返回放棄這次編輯，原本存好的照片不會受影響；一旦儲存成功，被移除的那份複製檔就會真的從裝置上刪除，這一步目前沒有復原機制，請在按儲存前確認。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c6)">03</span>
+          <div><b>雲端備份與換手機</b>
+          <p>登入 Google 帳號後執行「雲端備份」，演出記錄與照片都會存到你帳號底下的雲端空間（照片是壓縮過後才上傳，不是原始檔）。換新手機或重新安裝後登入同一個帳號，資料與照片都能還原回來；App 啟動時如果偵測到本機讀不到某張照片，也會自動嘗試從雲端修復，不用特地手動點還原。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c6)">04</span>
+          <div><b>手機和網頁的資料會互通嗎</b>
+          <p>會，用同一個 Google 帳號就是同一份。照片目前只有 App 能上傳，網頁版看得到 App 上傳的照片，但還不能直接在網頁版加照片。</p></div></li>
+        <li><span class="fk" style="--fc:var(--c6)">05</span>
+          <div><b>想自己留一份備份</b>
+          <p>「我的」→「我的資料」可以把演出記錄匯出成檔案，自己另外保存一份。</p></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="faq">
+    <span class="kicker" style="--kicker-c:var(--c5)">常見問題</span>
+    <h2>你可能想知道的細節</h2>
+
+    <details open>
+      <summary>刪掉手機相簿裡的原圖，App 裡的照片會不見嗎？</summary>
+      <p>不會。選圖的當下 App 就已經複製了一份到自己的私有空間，跟相簿裡的原圖是兩份獨立的檔案，之後刪原圖、搬移原圖都不影響 App 裡看到的照片。</p>
+    </details>
+    <details>
+      <summary>在 App 裡按「移除照片」，還能救回來嗎？</summary>
+      <p>移除照片本身只是先從畫面上拿掉，真正刪除裝置上的檔案是在你按下「儲存」或「暫存」確認之後才發生，而且目前沒有復原機制。如果只是點了移除但還沒儲存，直接返回放棄這次編輯就不會有任何影響；已經儲存成功的移除，就是真的刪掉了。</p>
+    </details>
+    <details>
+      <summary>資料會不會不見？</summary>
+      <p>網頁版的資料直接存在你 Google 帳號下的雲端，按儲存的當下就寫進去了，關掉分頁或重整都不會影響。手機 App 的資料存在手機本機，執行一次雲端備份就會同步一份到雲端；照片也會一併備份（壓縮後上傳）。</p>
+    </details>
+    <details>
+      <summary>手機和網頁的資料會互通嗎？</summary>
+      <p>會，用同一個 Google 帳號就是同一份。網頁上的新增與修改，等手機端同步之後就會出現在 App；同一筆兩邊都改過時，以比較晚修改的那一次為準。</p>
+    </details>
+    <details>
+      <summary>一定要登入嗎？</summary>
+      <p>台灣活動清單不用登入也能瀏覽。要記錄自己的演出、投稿活動或加好友，就需要登入，因為那些資料是綁在你的帳號上的。</p>
+    </details>
+    <details>
+      <summary>Pro 和 Pro+ 差在哪？</summary>
+      <p>只差在每場能放幾張照片（免費 3 張／Pro 5 張／Pro+ 10 張），其餘去廣告、深色模式、自訂調色盤、新增歌單、下載分享圖、匯出資料這些進階功能兩層完全一樣。</p>
+    </details>
+    <details>
+      <summary>訂閱到期後，超過張數的舊照片會被刪掉嗎？</summary>
+      <p>不會。降級或訂閱到期後，已經上傳的照片會全部保留，只是在張數降回目前方案的上限之前，沒辦法再新增照片。</p>
+    </details>
+    <details>
+      <summary>怎麼取消訂閱？</summary>
+      <p>到 Google Play 的「訂閱項目」取消即可；Pro 方案頁裡的「管理／取消訂閱」按鈕會直接帶你過去。取消後訂閱效期內功能仍可使用，到期後才會降回免費方案（已上傳的照片不受影響，見上一題）。</p>
+    </details>
+    <details>
+      <summary>台灣活動的資料從哪來？</summary>
+      <p>由使用者投稿，加上系統每天自動從管理員指定的公開來源（iCal、網頁內嵌的結構化活動資料）抓取。不管哪種來源，抓到 / 投稿的活動都要經過管理員審核確認才會公開，不會有沒人看過就直接上架的活動。</p>
+    </details>
+    <details>
+      <summary>Android App 和網頁版該用哪個？</summary>
+      <p>兩邊資料共用，選你順手的就好。手機出門在外拍照記錄比較方便，功能也最完整；網頁版免安裝，臨時想查資料或在電腦前補記錄很方便。也可以兩個都用。</p>
+    </details>
+  </section>
+
+  <footer>
+    <p class="small muted">
+      Bandary 聽團曆 · <a href="/">網頁版</a> · <a href="/about">介紹</a>
+    </p>
+    <p class="small muted" style="margin-top:8px">Android App · <a href="https://play.google.com/store/apps/details?id=com.bandary.app" target="_blank" rel="noopener">Google Play</a></p>
+    <p class="small muted" style="margin-top:8px">© 2026 Bandary 聽團曆</p>
+  </footer>
+
+</div>
+
+<section class="studio" aria-label="小數據所">
+  <div class="wrap">
+    <div class="studio-head">
+      <div class="dots" aria-hidden="true"><i></i><i class="k"></i><i></i><i class="g"></i><i class="k"></i><i class="g"></i><i></i><i></i><i></i><i></i><i class="g"></i><i class="k"></i><i class="g"></i><i></i><i class="k"></i><i></i></div>
+      <div><div class="studio-name">小數據所</div><div class="studio-sub">日子有數</div></div>
+    </div>
+    <p class="studio-tag">把沒人在記的生活，變成你看得懂的數據。</p>
+    <nav class="studio-links">
+      <a href="https://birthdaydeals.celine-fu-work.workers.dev/" target="_blank" rel="noopener">壽星日</a><span class="sep">·</span>
+      <a href="/about" aria-current="page">Bandary</a><span class="sep">·</span>
+      <a href="https://play.google.com/store/apps/details?id=com.relatestats.app" target="_blank" rel="noopener">RelateStats</a>
+    </nav>
+    <p class="studio-copy">© 2026 小數據所 · Celine Fu</p>
+  </div>
+</section>
+
+<div class="dock"><a class="btn btn-fill" href="/">回到網頁版</a></div>
+
+<script>
+  (function () {
+    var tabs = document.querySelectorAll('.tab');
+    tabs.forEach(function (t) {
+      t.addEventListener('click', function () {
+        var target = t.getAttribute('aria-controls');
+        tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+        document.querySelectorAll('.tabpanel').forEach(function (p) { p.hidden = (p.id !== target); });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

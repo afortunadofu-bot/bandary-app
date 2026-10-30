@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 品牌色票。App 圖示、啟動畫面與網頁 manifest 都用這組值，改色只改這裡與 web/manifest.json。 -->
+<resources>
+    <!-- 基準色：馬卡龍鼠尾草綠 -->
+    <color name="brand_green">#6B9080</color>
+    <color name="brand_green_light">#A8CCBC</color>
+    <!-- 啟動畫面底色，與網頁 manifest 的 background_color 一致 -->
+    <color name="brand_surface">#F4F7F6</color>
+    <color name="brand_surface_dark">#14181A</color>
+</resources>

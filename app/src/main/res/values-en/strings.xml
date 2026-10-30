@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bandary</string>
+    <string name="widget_upcoming_desc">Upcoming concerts list</string>
+    <string name="widget_countdown_desc">Countdown to the next show</string>
+    <string name="widget_month_desc">This month\'s shows &amp; on-sale calendar</string>
+    <string name="widget_sale_desc">Upcoming on-sale reminders</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_shows">Concerts</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_profile">Me</string>
+
+    <!-- Common actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_add">Add</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_share">Share</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_back">Back</string>
+
+    <!-- Language settings -->
+    <string name="settings_language">Language</string>
+    <string name="settings_language_desc">Change the app display language</string>
+    <string name="language_system">Follow system</string>
+    <string name="language_zh">中文</string>
+    <string name="language_en">English</string>
+</resources>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 精確鬧鐘：只保留可上架的 SCHEDULE_EXACT_ALARM（Google Play 限制 USE_EXACT_ALARM 只給鬧鐘 / 計時器類 App）。
+         未取得此權限時，DailyCheckInWorker 會自動退回不精確鬧鐘（setAndAllowWhileIdle），不影響功能。 -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- 不宣告 READ_MEDIA_IMAGES：選封面 / 照片一律走系統相片挑選器（PickVisualMedia），不需要任何權限；
+         存分享圖是寫入自己產生的檔案，也不需要讀取權限。Google Play 只允許「核心功能必須頻繁讀取整個相簿」
+         的 App 宣告這個權限（例如相簿、相片編輯器），宣告了會被要求填表審核，很可能被拒。 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:name=".BandaryApp"
+        android:allowBackup="false"
+        android:usesCleartextTraffic="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:localeConfig="@xml/locales_config"
+        android:theme="@style/Theme.Bandary">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Bandary.Starting"
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--
+              接收別的 App 分享過來的文字（主要用途：Gmail 裡的訂票確認信）。
+
+              為什麼走「分享」而不是直接讀 Gmail：讀信箱內容屬於 Google 的
+              restricted scope，要通過應用程式審查與第三方安全評估（CASA），
+              費用高、而且每年要重做一次。使用者自己按分享則**不需要任何權限**
+              ——他主動把那一封交出來，範圍就只有那一封。
+
+              text/plain 吃得到 Gmail 的「分享」；text/* 讓其他 App 的純文字也進得來。
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!-- 官方通知：FCM 推播接收 service -->
+        <service
+            android:name=".data.push.BandaryMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- 每日選歌提醒：精確鬧鐘的廣播接收器（含開機重排） -->
+        <receiver
+            android:name=".data.worker.DailyCheckInReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bandary.DAILY_CHECKIN" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 每日精選提醒（演出當天 / 補紀錄 / N 年前的今天 / 週末免費活動；含開機重排） -->
+        <receiver
+            android:name=".data.worker.DailyDigestReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bandary.DAILY_DIGEST" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 桌面小工具（Glance）：即將到來清單 / 下一場倒數 / 本月月曆 -->
+        <receiver
+            android:name=".presentation.widget.UpcomingListWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_upcoming_info" />
+        </receiver>
+        <receiver
+            android:name=".presentation.widget.CountdownWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_countdown_info" />
+        </receiver>
+        <receiver
+            android:name=".presentation.widget.MonthCalendarWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_month_info" />
+        </receiver>
+        <receiver
+            android:name=".presentation.widget.TicketSaleWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_sale_info" />
+        </receiver>
+        <receiver
+            android:name=".presentation.widget.TodaySongWidgetReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_todaysong_info" />
+        </receiver>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!--
+            BandaryApp implements Configuration.Provider for Hilt-injected Workers
+            (on-demand WorkManager initialization). The default WorkManagerInitializer
+            MUST be removed, otherwise WorkManager initializes with the default config
+            and ignores our HiltWorkerFactory, causing HiltWorkers to fail at runtime.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+    </application>
+
+</manifest>

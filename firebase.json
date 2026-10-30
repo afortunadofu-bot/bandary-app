@@ -1,0 +1,66 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": [
+    {
+      "//": "短網址 bandary.web.app（主要）與預設 bandary-e5547.web.app 服務同一份 web/。",
+      "site": "bandary",
+      "public": "web",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/firebase-config.example.js"],
+      "rewrites": [
+        { "source": "/about", "destination": "/about.html" },
+        { "source": "/help", "destination": "/help.html" },
+        { "source": "/privacy", "destination": "/privacy.html" },
+        { "source": "/delete-account", "destination": "/delete-account.html" },
+        { "source": "**", "destination": "/index.html" }
+      ],
+      "headers": [
+        {
+          "source": "/sw.js",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+        },
+        {
+          "source": "/index.html",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        },
+        {
+          "source": "/firebase-config.js",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        }
+      ]
+    },
+    {
+      "site": "bandary-e5547",
+      "public": "web",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/firebase-config.example.js"],
+      "rewrites": [
+        { "source": "/about", "destination": "/about.html" },
+        { "source": "/help", "destination": "/help.html" },
+        { "source": "/privacy", "destination": "/privacy.html" },
+        { "source": "/delete-account", "destination": "/delete-account.html" },
+        { "source": "**", "destination": "/index.html" }
+      ],
+      "headers": [
+        {
+          "source": "/sw.js",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+        },
+        {
+          "source": "/index.html",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        },
+        {
+          "source": "/firebase-config.js",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default"
+    }
+  ]
+}

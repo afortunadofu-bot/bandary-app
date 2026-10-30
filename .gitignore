@@ -1,0 +1,44 @@
+*.iml
+.gradle/
+local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+build/
+app/build/
+captures/
+.externalNativeBuild
+.cxx
+# Kotlin 編譯器暫存 / 失敗日誌（Windows 檔案鎖造成的暫時性失敗會留下，非真錯誤）
+.kotlin/
+*.apk
+*.aab
+google-services.json
+bandary-release.keystore
+# 正式簽章相關（切勿進版控）
+keystore.properties
+*.jks
+*.keystore
+
+# PWA 的 Firebase 網頁設定（與 google-services.json 同一個原則：設定值不進版控）
+web/firebase-config.js
+
+# Firebase CLI 的部署快取（每次 deploy 會重建，不需進版控）
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Cloud Functions 相依套件（deploy 時由 Cloud Build 依 package.json 重裝）
+functions/node_modules/
+
+# Claude Code 的本機權限設定（每台機器不同，不進版控）
+.claude/settings.local.json
+
+# 預防性：這兩種檔目前不存在，加規則是避免以後手滑
+.env
+.env.*
+secrets.properties

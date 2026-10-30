@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>刪除帳號 — Bandary 聽團曆</title>
+<meta name="description" content="如何刪除 Bandary 聽團曆的帳號與雲端資料：在 App 或網頁版操作的步驟、會刪除哪些資料、哪些會保留。">
+<meta name="theme-color" content="#F4F7F6">
+<meta name="color-scheme" content="light">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="canonical" href="https://bandary.web.app/delete-account">
+<style>
+  :root{
+    color-scheme:light;
+    --on-surface-variant:#22312B; --outline-variant:#D1DDD7;
+    --background:#F4F7F6; --on-background:#040706;
+    --c1:#6B9080;
+    --serif:"Noto Serif TC",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--background);color:var(--on-background);
+    font-family:var(--sans);font-size:16px;line-height:27px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:640px;margin:0 auto;padding:56px 24px 96px}
+  h1{font-family:var(--serif);font-size:clamp(30px,6vw,40px);font-weight:700;letter-spacing:-.4px;margin:0 0 6px}
+  .updated{font-size:13px;color:var(--on-surface-variant);margin:0 0 40px}
+  h2{font-family:var(--serif);font-size:20px;font-weight:700;margin:40px 0 10px;letter-spacing:-.2px}
+  p{margin:0 0 14px;color:var(--on-surface-variant)}
+  ol,ul{margin:0 0 14px;padding-left:22px;color:var(--on-surface-variant)}
+  li{margin-bottom:8px}
+  a{color:#6F9BC4}
+  a:hover{color:#5E8C84}
+  .back{display:inline-block;margin-bottom:28px;font-size:13px;color:var(--on-surface-variant);text-decoration:none}
+  .back:hover{color:var(--on-background)}
+  .notice{border-left:3px solid var(--c1);padding:10px 16px;margin:0 0 24px;background:#E8EFEC}
+  .notice p{margin:0;color:var(--on-background)}
+</style>
+<!-- 網站分析（GA4）。編號只寫在 analytics.js 裡，換帳號改一個地方就好。 -->
+<script src="analytics.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← 回到網頁版</a>
+  <h1>刪除帳號</h1>
+  <p class="updated">最後更新：2026-09-14</p>
+
+  <div class="notice">
+    <p>刪除後無法復原。刪除前如果想留一份紀錄，可以先在網頁版「我的 → 匯出成試算表」下載 CSV。</p>
+  </div>
+
+  <p>Bandary 聽團曆（開發者：Bandary）讓你隨時自行刪除帳號與雲端資料，不需要寫信申請。App 與網頁版用的是同一個帳號，在任一邊刪除即可。</p>
+
+  <h2>在 Android App 刪除</h2>
+  <ol>
+    <li>開啟 Bandary 聽團曆，確認已用要刪除的 Google 帳號登入。</li>
+    <li>進入底部的「我的」分頁，往下找到「登出」。</li>
+    <li>點「登出」下方的「刪除帳號」，輸入「刪除」後按「永久刪除」。</li>
+  </ol>
+
+  <h2>在網頁版刪除</h2>
+  <ol>
+    <li>前往 <a href="https://bandary.web.app">bandary.web.app</a>，用要刪除的 Google 帳號登入。</li>
+    <li>進入「我的」，在「我的資料」區塊點「刪除帳號」。</li>
+    <li>依提示輸入「刪除」確認。</li>
+  </ol>
+
+  <h2>會刪除的資料</h2>
+  <ul>
+    <li>演唱會、音樂祭紀錄與每日選歌</li>
+    <li>雲端備份的照片</li>
+    <li>好友關係、好友代碼與共享給好友的行事曆</li>
+    <li>年度排行榜名次與藝人粉絲排名</li>
+    <li>尚未公開（審核中或被駁回）的活動投稿，以及你送出的意見回饋</li>
+    <li>App 設定（暱稱、分享偏好等）與登入帳號本身</li>
+  </ul>
+  <p>刪除會立即執行，通常在一分鐘內完成；雲端服務商的備份會在其例行週期內自動覆寫。</p>
+
+  <h2>會保留的資料</h2>
+  <ul>
+    <li><b>已公開的活動</b>：活動頁上的公開活動是所有使用者共用的資訊，會保留內容，但移除投稿者的 email。</li>
+    <li><b>手機上的本機紀錄</b>：刪除帳號只處理雲端資料。要清除手機上的紀錄，請到系統設定清除 Bandary 的 App 資料，或直接解除安裝。</li>
+  </ul>
+
+  <h2 id="partial">只刪除部分資料（保留帳號）</h2>
+  <p>不想刪除整個帳號，也可以只刪除部分資料：</p>
+  <ul>
+    <li><b>單場演出紀錄</b>：App 打開該場詳情，右上角「⋮」→「刪除」；網頁版在編輯畫面按「刪除這場」。刪除的場次會先移到「我的 → 垃圾桶」，7 天後自動永久刪除，也可以在垃圾桶裡立即「永久刪除」。</li>
+    <li><b>每日選歌</b>：「行事曆 → 選歌」，點該首歌右側的刪除圖示。</li>
+    <li><b>雲端上所有演出與選歌</b>：App「我的」頁雲端備份區（有「備份」「還原」按鈕的那一區）→「清空雲端資料」。手機上的本機紀錄不受影響。</li>
+    <li><b>年度排行榜的名次</b>：App「統計」右上角獎盃 →「公開設定」→ 關閉「參加排行榜」；網頁版在排行榜頁取消勾選「公開我的排名」。關閉後會從排行榜移除。</li>
+    <li><b>活動投稿</b>：App「活動」右上角「⋮」→「我的投稿」，刪除審核中或被駁回的投稿；網頁版按「撤回這筆」。已公開的活動是所有使用者共用的資訊，無法自行刪除，可來信要求移除投稿者資訊。</li>
+    <li><b>新增演出時自動送審的活動資訊</b>：到「我的」關閉「新增演出時分享到活動頁」，之後就不會再送出。</li>
+  </ul>
+
+  <h2>無法登入時</h2>
+  <p>如果已經無法登入原本的 Google 帳號，請透過<a href="/privacy">隱私權政策</a>所列的聯絡信箱，寄信註明要刪除的帳號 email，我們會在確認後代為刪除。</p>
+</div>
+</body>
+</html>

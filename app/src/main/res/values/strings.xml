@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Bandary</string>
+    <string name="widget_upcoming_desc">即將到來的演唱會清單</string>
+    <string name="widget_countdown_desc">距離下一場演出的倒數</string>
+    <string name="widget_month_desc">本月演出與開賣月曆</string>
+    <string name="widget_sale_desc">即將開賣的提醒清單</string>
+    <string name="widget_todaysong_desc">今日選歌・一鍵記錄今天的一首歌</string>
+
+    <!-- 底部導覽（多語言） -->
+    <string name="nav_shows">演唱會</string>
+    <string name="nav_calendar">行事曆</string>
+    <string name="nav_events">活動</string>
+    <string name="nav_stats">統計</string>
+    <string name="nav_profile">我的</string>
+
+    <!-- 常用動作 -->
+    <string name="action_save">儲存</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_close">關閉</string>
+    <string name="action_add">新增</string>
+    <string name="action_delete">刪除</string>
+    <string name="action_share">分享</string>
+    <string name="action_edit">編輯</string>
+    <string name="action_back">返回</string>
+
+    <!-- 語言設定 -->
+    <string name="settings_language">語言</string>
+    <string name="settings_language_desc">切換 App 顯示語言</string>
+    <string name="language_system">跟隨系統</string>
+    <string name="language_zh">中文</string>
+    <string name="language_en">English</string>
+</resources>
